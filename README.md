@@ -2,11 +2,11 @@
 
 Implementation of classical and deep reinforcement learning algorithms from scratch in PyTorch, progressing from tabular methods to modern policy optimization and LLM fine-tuning with RLHF.
 
----
+----
 
 ## Requirements
 
-- Python >= 3.8
+- Python >= 3.8 
 - PyTorch >= 2.0.0
 - Gymnasium >= 0.29.0
 - NumPy >= 1.22.0
@@ -69,7 +69,7 @@ For RLHF only:
 - **Episode length**: fixed 200 steps
 
 ### LunarLanderContinuous-v3
-- **States**: 8 continuous values (position $x/y$, velocity $x/y$, angle, angular velocity, leg contacts)
+- **States**:: 8 continuous values (position $x/y$, velocity $x/y$, angle, angular velocity, leg contacts)
 - **Actions**: 2 continuous values (main engine throttle, lateral engine throttle) in $[-1, 1]$
 - **Reward**: +100/−100 for landing/crashing, −0.3 per frame main engine firing
 - **Solved**: average reward $\geq 200$ over 100 consecutive episodes
@@ -146,7 +146,7 @@ $$V^\pi(s) = \mathbb{E}_{a \sim \pi}[Q^\pi(s,a)] + \alpha H(\pi(\cdot|s))$$
 
 The optimal soft policy is the Boltzmann distribution over Q-values:
 
-$$\pi^*(a|s) \propto \exp\!\left(\frac{1}{\alpha} Q^*(s,a)\right)$$
+$$\pi^{\star}(a|s) \propto \exp\!\left(\frac{1}{\alpha} Q^{\star}(s,a)\right)$$
 
 As $\alpha \to 0$ this recovers the deterministic greedy policy; as $\alpha \to \infty$ it converges to the uniform distribution. In practice $\pi_\theta$ is a Gaussian with state-dependent mean and variance, sampled via the **reparameterization trick**:
 
@@ -175,11 +175,17 @@ When $\hat{A}_t > 0$ the clip prevents $r_t(\theta)$ from exceeding $1+\varepsil
 
 $$\hat{A}_t^{GAE(\gamma,\lambda)} = \sum_{l=0}^{\infty} (\gamma\lambda)^l \delta_{t+l}, \qquad \delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$$
 
-$\lambda \in [0,1]$ interpolates between TD(0) ($\lambda=0$, low variance, high bias) and Monte Carlo ($\lambda=1$, high variance, zero bias). The critic targets are set as $\hat{A}_t + V_\phi(s_t)$ and the critic is trained by minimizing:
+$\lambda \in [0,1]$ interpolates between TD(0) ($\lambda=0$, low variance, high bias) and Monte Carlo ($\lambda=1$, high variance, zero bias). The critic targets are set as $\hat{A}_t + V_{\phi}(s_t)$ and the critic is trained by minimizing:
 
 $$\mathcal{L}^{VF}(\phi) = \mathbb{E}_t\left[\left(V_\phi(s_t) - (\hat{A}_t + V_\phi^{old}(s_t))\right)^2\right]$$
 
 The full objective also includes an entropy bonus $\mathcal{L}^{ENT}(\theta) = \mathbb{E}_t[H(\pi_\theta(\cdot|s_t))]$ to encourage exploration. An approximate KL divergence $\hat{D}_{KL} = \mathbb{E}_t[(r_t(\theta)-1) - \log r_t(\theta)]$ is monitored as an early stopping criterion per epoch.
+
+**KL divergence bound**: the approximate KL between the old and new policy is:
+
+$$\hat{D}_{KL}(\pi_{\theta_{old}} \| \pi_{\theta}) = \mathbb{E}_t\left[(r_t(\theta) - 1) - \log r_t(\theta)\right]$$
+
+This approximation follows from the second-order Taylor expansion of $D_{KL}$ around $r_t = 1$: since $\log x \leq x - 1$ for all $x > 0$, the quantity $(r_t - 1) - \log r_t \geq 0$ always, making it numerically stable. If $\hat{D}_{KL}$ exceeds a threshold $\delta$ at any epoch, training stops early for that iteration — this is a softer alternative to TRPO's hard constraint, preserving the computational simplicity of first-order optimization while still bounding policy change.
 
 ### RLHF (Reinforcement Learning from Human Feedback)
 Three-stage pipeline for aligning LLMs with human preferences:
