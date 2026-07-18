@@ -1,4 +1,4 @@
-# Deep Reinforcement Learning Portfolio
+# Deep (and Classical) Reinforcement Learning
 
 Implementation of classical and deep reinforcement learning algorithms from scratch in PyTorch, progressing from tabular methods to modern policy optimization and LLM fine-tuning with RLHF.
 
