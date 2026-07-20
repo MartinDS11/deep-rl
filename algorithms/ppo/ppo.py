@@ -167,7 +167,7 @@ class PPO:
         plt.title('PPO - LunarLandingContinuous-v3')
         plt.legend()
         plt.grid(True)
-        plt.savefig('rewards.png')   # guarda el grafico como imagen
+        plt.savefig('results/ppo_rewards.png')   # guarda el grafico como imagen
         plt.show()                
 
 

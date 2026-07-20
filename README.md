@@ -82,7 +82,7 @@ Model-based dynamic programming. Applies the Bellman optimality operator $\mathc
 
 $$V_{k+1}(s) = (\mathcal{T}^* V_k)(s) = \max_a \sum_{s'} p(s'|s,a)\left[r(s,a,s') + \gamma V_k(s')\right]$$
 
-$\mathcal{T}^*$ is a contraction mapping on $(B(S), \|\cdot\|_\infty)$ with contraction factor $\gamma < 1$. By Banach's fixed point theorem, $V_k \to V^*$ geometrically at rate $\gamma^k$, regardless of initialization. Terminates when $\|V_{k+1} - V_k\|_\infty < \theta$. Requires full knowledge of $p(s'|s,a)$. Complexity $O(|S|^2|A|)$ per iteration.
+$\mathcal{T}^{\star}$ is a contraction mapping on $(B(S), \|\cdot\|_\infty)$ with contraction factor $\gamma < 1$. By Banach's fixed point theorem, $V_k \to V^{\star}$ geometrically at rate $\gamma^k$, regardless of initialization. Terminates when $\|V_{k+1} - V_k\|_\infty < \theta$. Requires full knowledge of $p(s'|s,a)$. Complexity $O(|S|^2|A|)$ per iteration.
 
 ### Monte Carlo
 Model-free, episodic. Estimates $Q^\pi(s,a)$ as the sample mean of observed returns under first-visit or every-visit schemes:
@@ -103,7 +103,7 @@ Model-free, bootstrapped. Decouples behavior policy from target policy by using 
 
 $$Q(s,a) \leftarrow Q(s,a) + \alpha\left[r + \gamma \max_{a'} Q(s',a') - Q(s,a)\right]$$
 
-Off-policy: learns $Q^*$ directly regardless of the exploration policy used to generate data. The $\max$ operator introduces a maximization bias — $\mathbb{E}[\max_a Q(s,a)] \geq \max_a \mathbb{E}[Q(s,a)]$ — which Double Q-Learning corrects by decoupling action selection from action evaluation. Converges to $Q^*$ under the same conditions as SARSA.
+Off-policy: learns $Q^{\star}$ directly regardless of the exploration policy used to generate data. The $\max$ operator introduces a maximization bias — $\mathbb{E}[\max_a Q(s,a)] \geq \max_a \mathbb{E}[Q(s,a)]$ — which Double Q-Learning corrects by decoupling action selection from action evaluation. Converges to $Q^{\star}$ under the same conditions as SARSA.
 
 ---
 ### DQN (Deep Q-Network)
@@ -173,13 +173,13 @@ When $\hat{A}_t > 0$ the clip prevents $r_t(\theta)$ from exceeding $1+\varepsil
 
 **Generalized Advantage Estimation (GAE)** reduces variance of the advantage estimate by exponentially weighting TD residuals:
 
-$$\hat{A}_t^{GAE(\gamma,\lambda)} = \sum_{l=0}^{\infty} (\gamma\lambda)^l \delta_{t+l}, \qquad \delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$$
+$\lambda \in [0,1]$ interpolates between TD(0) ($\lambda=0$, low variance, high bias) and Monte Carlo ($\lambda=1$, high variance, zero bias). The critic targets are set as $\hat{A}_t + V_{\phi}(s_t)$ and the critic is trained by minimizing:
 
 $\lambda \in [0,1]$ interpolates between TD(0) ($\lambda=0$, low variance, high bias) and Monte Carlo ($\lambda=1$, high variance, zero bias). The critic targets are set as $\hat{A}_t + V_{\phi}(s_t)$ and the critic is trained by minimizing:
 
 $$\mathcal{L}^{VF}(\phi) = \mathbb{E}_t\left[\left(V_\phi(s_t) - (\hat{A}_t + V_\phi^{old}(s_t))\right)^2\right]$$
 
-The full objective also includes an entropy bonus $\mathcal{L}^{ENT}(\theta) = \mathbb{E}_t[H(\pi_\theta(\cdot|s_t))]$ to encourage exploration. An approximate KL divergence $\hat{D}_{KL} = \mathbb{E}_t[(r_t(\theta)-1) - \log r_t(\theta)]$ is monitored as an early stopping criterion per epoch.
+The full objective also includes an entropy bonus $\mathcal{L}^{ENT}(\theta) = \mathbb{E}_t[H(\pi_{\theta}(\cdot|s_t))]$ to encourage exploration. An approximate KL divergence $\hat{D}_{KL} = \mathbb{E}_t[(r_t(\theta)-1) - \log r_t(\theta)]$ is monitored as an early stopping criterion per epoch.
 
 **KL divergence bound**: the approximate KL between the old and new policy is:
 
